@@ -1,0 +1,123 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-and-push
+spec:
+  workspaces:
+    - name: source
+  params: 
+    - name: username
+      type: string
+      description: Username for image registry
+    - name: password
+      type: string
+      description: Password for image registry
+  steps:
+    - name: build
+      image: fedora:32
+      script: |
+        #!/usr/bin/env bash
+        dnf install -y podman
+        cd $(workspaces.source.path)
+        podman login --storage-driver=vfs -u $(params.username) -p $(params.password) docker.io
+        podman build --storage-driver=vfs -t $(params.username)/tekton-lab-app .
+        podman push --storage-driver=vfs $(params.username)/tekton-lab-app
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npm-runner
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: script
+      type: string
+      description: What should we run with npm
+      default: start
+  steps:
+    - name: npm
+      image: node:14
+      script: |
+        #!/usr/bin/env bash
+        cd $(workspaces.source.path)
+        if [ $(params.script) == "install" ]
+          then
+            npm install
+        fi
+        if [ $(params.script) != "install" ]
+          then
+            npm run $(params.script)
+        fi
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: app-deploy
+spec:
+  params:
+    - name: username
+      type: string
+      description: Username for image registry
+    - name: password
+      type: string
+      description: Password for image registry
+  workspaces:
+    - name: source
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      params: 
+        - name: url
+          value: https://github.com/joellord/tekton-lab-app
+      workspaces:
+        - name: output
+          workspace: source
+    - name: install
+      taskRef:
+        name: npm-runner
+      params:
+        - name: script
+          value: install
+      workspaces: 
+        - name: source
+          workspace: source
+      runAfter:
+        - clone-repo
+    - name: test
+      taskRef:
+        name: npm-runner
+      params:
+        - name: script
+          value: test
+      workspaces: 
+        - name: source
+          workspace: source
+      runAfter:
+        - install
+    - name: lint
+      taskRef:
+        name: npm-runner
+      params:
+        - name: script
+          value: lint
+      workspaces: 
+        - name: source
+          workspace: source
+      runAfter:
+        - install
+    - name: deploy
+      taskRef:
+        name: build-and-push
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: username
+          value: $(params.username)
+        - name: password
+          value: $(params.password)
+      runAfter:
+        - test
+        - lint

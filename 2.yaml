@@ -1,0 +1,17 @@
+# A task with a parameter
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: hello
+spec:
+  params:
+    - name: person
+      type: string
+      description: "Name of the person to say hello to"
+      default: World
+  steps:
+    - name: say-hello
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        echo Hello $(params.person)

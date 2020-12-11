@@ -1,0 +1,48 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pb-and-j
+spec:
+  tasks:
+    - name: get-bread
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: bread
+    - name: get-pb
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: Peanut Butter
+    - name: get-j
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: Jelly
+    - name: spread-pb
+      taskRef:
+        name: spread
+      params:
+        - name: ingredient
+          value: Peanut Butter
+      runAfter:
+        - get-bread
+        - get-pb
+    - name: spread-j
+      taskRef:
+        name: spread
+      params:
+        - name: ingredient
+          value: Jelly
+      runAfter:
+        - get-bread
+        - get-j
+    - name: eat
+      taskRef:
+        name: eat
+      runAfter:
+        - spread-j
+        - spread-pb

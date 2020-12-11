@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: welcome
+spec:
+  params:
+    - name: sleeptime
+      type: string
+      default: "1"
+      description: "How long do you want to sleep"
+    - name: person
+      type: string
+      default: "World"
+      description: "What is thy name"
+  steps:
+    - name: sleep
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        echo "Sleeping for $(params.sleeptime) seconds"
+        sleep $(params.sleeptime)
+    - name: greeting
+      image: registry.access.redhat.com/ubi8/ubi
+      command: 
+        - "/bin/bash"
+      args:
+        - "-c"
+        - "echo Welcome $(params.person) to the second task"

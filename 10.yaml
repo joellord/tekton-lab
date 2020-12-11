@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gather
+spec:
+  params:
+    - name: ingredient
+      type: string
+      default: bread
+      description: Ingredient to get
+  steps:
+    - name: get-ingredient
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        echo Fetching ingredient: $(params.ingredient)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: spread
+spec:
+  params:
+    - name: ingredient
+      type: string
+      description: Ingredient to spread on bread
+  steps:
+    - name: spread-ingredient
+      image: registry.access.redhat.com/ubi8/ubi
+      command:
+        - /bin/bash
+      args: ['-c', 'echo Spreading $(params.ingredient) on the bread']
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: eat
+spec:
+  steps: 
+    - name: eat-sandwich
+      image: registry.access.redhat.com/ubi8/ubi
+      command: 
+        - /bin/bash
+      args: ['-c', 'echo Eating the sandwich']

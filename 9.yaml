@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello
+spec:
+  params:
+    - name: person
+      type: string
+      description: "Name of person to greet"
+      default: "World"
+    - name: person2
+      type: string
+      description: "Name of second person to greet"
+      default: "Joel"
+  tasks:
+    - name: say-hello
+      taskRef: 
+        name: hello
+      params: 
+        - name: person
+          value: $(params.person)
+    - name: say-hello-again
+      taskRef: 
+        name: hello
+      params: 
+        - name: person
+          value: $(params.person2)
+    - name: say-greeting
+      taskRef: 
+        name: welcome
+      params: 
+        - name: person
+          value: $(params.person)
+        - name: sleeptime
+          value: "2"
+      runAfter: 
+        - say-hello

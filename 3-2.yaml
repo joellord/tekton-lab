@@ -1,0 +1,28 @@
+# A basic task with multiple steps
+# Shared folder between steps
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: hello-with-result
+spec:
+  results:
+    - name: person
+      description: File to store the name of the person
+  params:
+    - name: person
+      type: string
+      description: "Name of the person to say hello to"
+      default: World
+  steps:
+    - name: write-name
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        cd ~
+        echo $(params.person) | tee $(results.person.path)
+        echo "Name of person has been saved"
+    - name: say-hello
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        echo Hello $(cat $(results.person.path))

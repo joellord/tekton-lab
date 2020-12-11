@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: welcome
+spec:
+  steps:
+    - name: greeting
+      image: registry.access.redhat.com/ubi8/ubi
+      command: 
+        - "/bin/bash"
+      args:
+        - "-c"
+        - "echo Welcome to the second task"

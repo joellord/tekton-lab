@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: clone-read-
+spec:
+  pipelineRef:
+    name: read-from-git
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec: 
+          accessModes:
+            - ReadWriteOnce
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 1Gi

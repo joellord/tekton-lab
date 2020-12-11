@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello
+spec:
+  tasks:
+    - name: say-hello
+      taskRef: 
+        name: hello
+    - name: say-greeting
+      taskRef: 
+        name: welcome

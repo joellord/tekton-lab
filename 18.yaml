@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: compliment
+spec:
+  params:
+    - name: person
+      type: string
+      description: Name of the person to compliment
+  steps:
+    - name: say-something-nice
+      image: registry.access.redhat.com/ubi8/ubi
+      command:
+        - /bin/bash
+      args: ['-c', 'echo You are awesome!']
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: greet-and-compliment
+spec:
+  params:
+    - name: who
+      type: string
+      default: World
+      description: Who should we greet?
+  tasks:
+    - name: say-hello
+      taskRef:
+        name: hello
+      params:
+        - name: person
+          value: $(params.who)
+    - name: say-compliment
+      taskRef:
+        name: compliment
+      params: 
+        - name: person
+          value: $(params.who)
+      runAfter:
+        - say-hello
+      when:
+        - input: $(params.who)
+          operator: in
+          values: ["Joel"]

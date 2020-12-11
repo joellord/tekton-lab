@@ -1,0 +1,57 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: warning
+spec:
+  steps:
+    - name: warn
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        echo "Warning: you are not on the main branch"
+---
+# Use the git clone task from http://hub-preview.tekton.dev
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: read-from-git
+spec:
+  params:
+    - name: revision
+      type: string
+      description: Revision (branch) for the git repo
+      default: development
+  workspaces:
+    - name: source
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: "https://github.com/joellord/tekton-lab-sample.git"
+        - name: revision
+          value: $(params.revision)
+      workspaces:
+        - name: output
+          workspace: source
+    - name: warn
+      taskRef:
+        name: warning
+      when:
+        - input: $(params.revision)
+          operator: notin
+          values: ["main"]
+      runAfter:
+        - clone-repo
+    - name: read
+      taskRef:
+        name: read-file
+      params: 
+        - name: filename
+          value: sample.txt
+      workspaces:
+        - name: files
+          workspace: source
+      runAfter:
+        - clone-repo

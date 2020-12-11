@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: writer
+spec:
+  workspaces:
+    - name: shared
+  steps:
+    - name: write
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        cd $(workspaces.shared.path)
+        touch message.txt
+        echo "Message from the write" > message.txt
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: reader
+spec:
+  workspaces:
+    - name: shared
+      readOnly: true
+  steps:
+    - name: read
+      image: registry.access.redhat.com/ubi8/ubi
+      script: |
+        #!/usr/bin/env bash
+        cd $(workspaces.shared.path)
+        cat message.txt
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: read-write
+spec:
+  workspaces:
+    - name: output
+  tasks:
+    - name: write
+      taskRef:
+        name: writer
+      workspaces:
+        - name: shared
+          workspace: output
+    - name: read
+      taskRef: 
+        name: reader
+      workspaces:
+        - name: shared
+          workspace: output
+      runAfter:
+        - write

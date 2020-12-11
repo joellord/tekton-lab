@@ -1,0 +1,70 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: eat
+spec:
+  params:
+    - name: who
+      type: string
+  steps: 
+    - name: eat-sandwich
+      image: registry.access.redhat.com/ubi8/ubi
+      command: 
+        - /bin/bash
+      args: ['-c', 'echo Enjoy the sandwich, $(params.who)']
+--- 
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pb-and-j
+spec:
+  params:
+    - name: who
+      type: string
+      description: Who is eating this sandwich?
+  tasks:
+    - name: get-bread
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: bread
+    - name: get-pb
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: Peanut Butter
+    - name: get-j
+      taskRef:
+        name: gather
+      params: 
+        - name: ingredient
+          value: Jelly
+    - name: spread-pb
+      taskRef:
+        name: spread
+      params:
+        - name: ingredient
+          value: Peanut Butter
+      runAfter:
+        - get-bread
+        - get-pb
+    - name: spread-j
+      taskRef:
+        name: spread
+      params:
+        - name: ingredient
+          value: Jelly
+      runAfter:
+        - get-bread
+        - get-j
+    - name: eat
+      taskRef:
+        name: eat
+      params:
+        - name: who
+          value: $(params.who)
+      runAfter:
+        - spread-j
+        - spread-pb

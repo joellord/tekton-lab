@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: read-write-with-template-
+spec:
+  pipelineRef:
+    name: read-write
+  workspaces:
+    - name: output
+      volumeClaimTemplate:
+        spec: 
+          accessModes:
+            - ReadWriteOnce
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 1Gi
