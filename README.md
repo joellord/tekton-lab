@@ -104,3 +104,34 @@ Pearson training, December 16 2020.
   * Run npm test
   * Run npm lint
   * Push to registry
+
+---
+
+## Links
+What is CI/CD  https://www.redhat.com/en/topics/devops/what-is-ci-cd
+Continuous Delivery Foundation  https://cd.foundation
+Tekton  https://tekton.dev
+Git  https://git-scm.com
+VS Code  https://code.visualstudio.com
+Tekton extension for VS Code  https://github.com/redhat-developer/vscode-tekton
+Docker  https://www.docker.com/get-started
+Podman (alternative to Docker)  https://podman.io
+Kubectl  https://kubernetes.io/docs/tasks/tools/install-kubectl/
+Minikube  https://minikube.sigs.k8s.io/docs/start/
+Tekton CLI tool  https://github.com/tektoncd/cli/releases
+Tekton Installation  https://tekton.dev/docs/getting-started
+Tekton Task Catalog  https://hub-preview.tekton.dev
+
+---
+
+## Schedule
+Segment 1: Introduction to CI/CD and Tekton 30 minutes
+Segment 2: Installing Tekton on minikube 20 minutes
+Q&A/Break 10 minutes
+Segment 3: Building a Task 25 minutes
+Segment 4: Building a Pipeline 25 minutes
+Q&A/Break 10 minutes
+Segment 5: Adding Resources 25 minutes
+Segment 6: Introducing Workspaces and Conditions 25 minutes
+Q&A/Break 10 minutes
+Segment 7: Build Your Own Pipeline 1 hour
